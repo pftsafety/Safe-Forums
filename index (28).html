@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Safe Forum Funds · PFT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#f4f5f3;--card:#ffffff;--ink:#14201e;--ink2:#34433f;--mu:#6b7b76;--ln:#e3e8e6;--ln2:#eef2f0;
+  --teal:#0f766e;--teal2:#115e59;--teal-soft:#e6f4f1;--teal-line:#b9e0d8;
+  --amber:#b45309;--amber-soft:#fef6e7;--red:#b42318;--red-soft:#fdecea;--green:#067647;--green-soft:#e7f6ee;
+  --spent:#0f766e;--held:#d97706;--free:#e4e9e7;--re:#0284c7;
+  --r:16px;--sh:0 1px 2px rgba(20,32,30,.05),0 4px 14px -6px rgba(20,32,30,.08);
+  --font:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--display:Manrope,Inter,system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 var(--font);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit}
+:focus-visible{outline:3px solid #99f6e4;outline-offset:2px}
+
+/* ---------- Top bar ---------- */
+.top{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.92);backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--ln)}
+.top-in{max-width:1320px;margin:0 auto;padding:0 28px;height:66px;display:flex;align-items:center;gap:28px}
+.brand{display:flex;align-items:center;gap:11px;flex:none}
+.mark{width:34px;height:34px;border-radius:10px;background:var(--teal);color:#fff;display:grid;place-items:center;font:800 12px var(--display);letter-spacing:.02em}
+.brand b{display:block;font:700 15px var(--display);color:var(--ink);letter-spacing:-.01em}
+.brand small{color:var(--mu);font-size:11.5px}
+.nav{display:flex;gap:4px;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav a{padding:8px 14px;border-radius:999px;color:var(--mu);text-decoration:none;font-weight:600;font-size:13.5px;white-space:nowrap;transition:background .2s,color .2s}
+.nav a:hover{color:var(--ink);background:var(--ln2)}
+.nav a.on{background:var(--teal-soft);color:var(--teal2)}
+.top-actions{display:flex;align-items:center;gap:8px;flex:none}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--amber-soft);color:var(--amber);font-weight:600;font-size:12.5px;white-space:nowrap}
+
+/* ---------- Page ---------- */
+.wrap{max-width:1320px;margin:0 auto;padding:30px 28px 72px}
+.page-h{margin-bottom:22px}
+h1{font:800 28px/1.15 var(--display);letter-spacing:-.02em;margin:0;color:var(--ink)}
+.meta{color:var(--mu);font-size:13px;margin-top:6px;display:flex;align-items:center;gap:6px}
+.live{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--teal);animation:livePulse 2s infinite}
+.view{display:none}.view.on{display:block}
+.grid{display:grid;gap:18px}
+.g-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.mt{margin-top:18px}
+.stack{display:grid;gap:18px;align-content:start}
+
+/* ---------- Cards ---------- */
+.card{background:var(--card);border:1px solid var(--ln);border-radius:var(--r);box-shadow:var(--sh);min-width:0;overflow:hidden}
+.card-h{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:20px 22px 14px;flex-wrap:wrap}
+.card-h h2{font:700 16px var(--display);margin:0;letter-spacing:-.01em}
+.card-h p{margin:4px 0 0;font-size:12.5px;color:var(--mu)}
+.card-b{padding:0 22px 22px}
+
+/* ---------- Hero: overall position ---------- */
+.hero{display:grid;grid-template-columns:300px minmax(0,1fr);padding:0}
+.hero-l{background:linear-gradient(155deg,#0f766e 0%,#115e59 55%,#134e4a 100%);color:#fff;padding:24px 24px 22px;display:flex;flex-direction:column;gap:6px}
+.hero-l .eyebrow{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:#99f6e4;font-weight:700}
+.hero-l h2{font:700 16px var(--display);margin:0 0 6px}
+.hero #donut{display:flex;flex-direction:column;align-items:center;gap:14px}
+.ring{width:170px;height:170px;animation:ringIn .9s cubic-bezier(.2,.7,.2,1) both}
+.ring .rv{font:800 30px var(--display);fill:#fff}
+.ring .rl{font-size:11px;fill:#99f6e4;text-transform:uppercase;letter-spacing:.06em}
+.legend{list-style:none;margin:0;padding:0;width:100%;display:grid;gap:7px}
+.legend li{display:grid;grid-template-columns:10px 1fr auto;gap:9px;align-items:center;font-size:12.5px;color:#d1fae5}
+.legend i{width:10px;height:10px;border-radius:3px}
+.legend b{color:#fff;font-variant-numeric:tabular-nums;font-weight:600}
+.hero-r{padding:22px 24px;display:flex;flex-direction:column;justify-content:center}
+.g-kpi{grid-template-columns:repeat(3,minmax(0,1fr));gap:0;height:100%;border:0}
+.kpi{padding:18px 20px;border-right:1px solid var(--ln2);border-bottom:1px solid var(--ln2);box-shadow:none;border-radius:0;background:transparent}
+.kpi:nth-child(3n){border-right:0}
+.kpi:nth-last-child(-n+3){border-bottom:0}
+.kpi .l{font-size:12px;color:var(--mu);font-weight:600}
+.kpi .v{font:800 26px/1.1 var(--display);letter-spacing:-.02em;margin-top:8px;font-variant-numeric:tabular-nums;color:var(--ink)}
+.kpi .s{font-size:12px;color:var(--mu);margin-top:6px}
+.kpi.acc{background:var(--teal-soft);border-radius:12px}
+.kpi.acc .v{color:var(--teal2)}
+.kpi.acc .l,.kpi.acc .s{color:var(--teal2)}
+
+/* ---------- Evaluation steps ---------- */
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:4px 22px 22px}
+.step{position:relative;border-radius:12px;background:#f7f9f8;border:1px solid var(--ln2);padding:14px 16px}
+.step b{display:block;font-size:13px;font-weight:700;color:var(--ink2)}
+.step span{font-size:12px;color:var(--mu)}
+.step.done{background:var(--green-soft);border-color:#c6ead6}
+.step.done b{color:var(--green)}
+.step.done b::after{content:" ✓"}
+.step.now{background:var(--teal-soft);border-color:var(--teal-line)}
+.step.now b{color:var(--teal2)}
+.step.now::before{content:"Now";position:absolute;top:-9px;left:14px;background:var(--teal);color:#fff;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:999px}
+
+/* ---------- Charts ---------- */
+.mcols{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:6px;height:200px;align-items:end}
+.mcol{display:flex;flex-direction:column;align-items:center;height:100%;min-width:0}
+.mval{font-size:10.5px;color:var(--ink2);font-weight:700;height:16px;line-height:16px;white-space:nowrap}
+.mbar{flex:1;width:100%;display:flex;align-items:flex-end;background:#f1f4f3;border-radius:8px 8px 0 0;overflow:hidden}
+.mbar i{display:block;width:100%;background:var(--spent);border-radius:8px 8px 0 0;animation:growY .8s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--d,0) * 45ms);transform-origin:center bottom}
+.mlab{font-size:10.5px;color:var(--mu);margin-top:6px}
+.rk-wrap{display:grid;gap:12px}
+.rk{display:grid;grid-template-columns:96px 1fr 40px;gap:12px;align-items:center;font-size:13px;font-weight:600}
+.rk .rp{text-align:right;color:var(--mu);font-variant-numeric:tabular-nums;font-weight:600}
+.prog{display:flex;height:9px;border-radius:999px;overflow:hidden;background:var(--free);min-width:130px}
+.prog i{display:block;height:100%;transform-origin:left center;animation:growX .9s cubic-bezier(.2,.7,.2,1) both}
+.prog.thin{height:7px;min-width:0}
+
+/* ---------- Attention list ---------- */
+.ins{list-style:none;margin:0;padding:0}
+.ins li{display:flex;gap:12px;padding:14px 22px;border-top:1px solid var(--ln2);font-size:13.5px;color:var(--ink2);animation:fadeUp .45s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--d,0) * 60ms)}
+.ins li:first-child{border-top:0}
+.ins li::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--teal);margin-top:6px;flex:none}
+.ins li.w::before{background:var(--held)}
+.ins li.b::before{background:var(--red)}
+.ins li.g1::before{background:var(--green)}
+.ins b{color:var(--ink)}
+
+/* ---------- Tables ---------- */
+.scroll{overflow:auto}
+.tall{max-height:calc(100vh - 290px);min-height:260px}
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13.5px}
+.tbl th{font-size:11.5px;font-weight:700;color:var(--mu);text-align:left;padding:12px 16px;background:#f8faf9;border-bottom:1px solid var(--ln);white-space:nowrap;position:sticky;top:0;z-index:1;text-transform:uppercase;letter-spacing:.04em}
+.tbl td{padding:12px 16px;border-bottom:1px solid var(--ln2);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:0}
+.tbl tr.click{cursor:pointer}
+.tbl tr.click:hover td{background:#f5faf8}
+.tbl tr.pick td{background:var(--teal-soft)}
+.tbl th.srt{cursor:pointer;user-select:none}
+.tbl th.srt:hover{color:var(--ink)}
+.tbl .n{text-align:right;font-variant-numeric:tabular-nums}
+.tbl .nw{white-space:nowrap}
+.tbl .wrap{white-space:normal;min-width:240px}
+.evt{table-layout:fixed;min-width:660px}
+.sub2{color:var(--mu);font-size:12px;margin-top:3px;white-space:normal}
+.fbadge{display:inline-block;background:#eef2f0;color:var(--ink2);border-radius:7px;padding:3px 9px;font-weight:700;font-size:12px}
+.lg{display:flex;gap:16px;flex-wrap:wrap;padding:12px 22px;border-top:1px solid var(--ln2);font-size:12px;color:var(--mu)}
+.lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.empty{padding:30px;text-align:center;color:var(--mu)}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+.badge.Active,.badge.Approved,.badge.Eligible,.badge.Sent{background:var(--green-soft);color:var(--green)}
+.badge.Inactive,.badge.Rejected{background:var(--red-soft);color:var(--red)}
+.badge.Pending,.badge.Limit{background:var(--amber-soft);color:var(--amber)}
+.note{font-size:12px;color:var(--mu)}
+
+/* ---------- Toolbar & summary ---------- */
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;padding:14px 22px;border-top:1px solid var(--ln2);border-bottom:1px solid var(--ln2);background:#fbfcfb}
+.toolbar select{width:auto;min-width:160px}
+.toolbar input{flex:1;min-width:220px}
+.sumline{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.sumline span{background:var(--ln2);border-radius:999px;padding:4px 12px;font-size:12.5px;color:var(--ink2)}
+.sumline b{color:var(--ink)}
+
+/* ---------- Evaluations ---------- */
+.evrun{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap}
+.evrun>div:first-child{min-width:300px}
+.evrun label{margin:0 0 6px}
+.evrun .btnrow{margin-top:0}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.facts>div{background:#f7f9f8;border:1px solid var(--ln2);border-radius:12px;padding:14px 16px;min-width:0}
+.facts span{display:block;font-size:12px;color:var(--mu);font-weight:600}
+.facts b{font:700 16px var(--display)}
+
+/* ---------- Forms, buttons ---------- */
+label{display:block;font-size:12.5px;font-weight:600;color:var(--ink2);margin:14px 0 6px}
+input,select,textarea{width:100%;min-width:0;font-size:13.5px;padding:10px 12px;border:1px solid #cdd8d4;border-radius:11px;background:#fff;color:var(--ink);transition:border-color .2s,box-shadow .2s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px #ccebe5}
+textarea{resize:vertical}
+.hint{font-size:12px;color:var(--mu);margin-top:6px;min-height:1em}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-row label{margin-top:0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-weight:700;font-size:13px;padding:10px 16px;border-radius:11px;border:1px solid var(--teal);background:var(--teal);color:#fff;cursor:pointer;white-space:nowrap;transition:background .15s,transform .12s,box-shadow .2s}
+.btn:hover{background:var(--teal2);border-color:var(--teal2);box-shadow:0 8px 18px -10px rgba(15,118,110,.8)}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:#fff;color:var(--ink2);border-color:#cdd8d4}
+.btn.ghost:hover{background:#f7f9f8;border-color:#9fb1ab;box-shadow:none}
+.btn.ok{background:var(--green);border-color:var(--green)}.btn.ok:hover{background:#055a38;border-color:#055a38}
+.btn.bad{background:#fff;color:var(--red);border-color:#f3c4bf}.btn.bad:hover{background:var(--red-soft)}
+.btn.sm{padding:6px 11px;font-size:12px;border-radius:9px}
+.btn:disabled{opacity:.5;cursor:wait}
+.btn.loading{pointer-events:none;color:transparent!important;position:relative}
+.btn.loading::after{content:"";position:absolute;left:50%;top:50%;width:16px;height:16px;margin:-8px 0 0 -8px;border:2px solid #fff;border-right-color:transparent;border-radius:50%;animation:spin .7s linear infinite}
+.btn.ghost.loading::after{border-color:var(--ink2);border-right-color:transparent}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.icon{background:none;border:0;font-size:18px;line-height:1;color:var(--mu);cursor:pointer;padding:4px 6px;border-radius:8px}
+.icon:hover{background:var(--ln2);color:var(--ink)}
+
+/* ---------- Dialog, toast, loading bar ---------- */
+dialog{border:none;border-radius:20px;padding:0;width:min(560px,94vw);box-shadow:0 30px 70px rgba(15,23,42,.3);color:var(--ink)}
+dialog::backdrop{background:rgba(15,23,42,.42)}
+dialog[open]{animation:dlgIn .3s cubic-bezier(.2,.8,.2,1) both}
+.dlg-h{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1px solid var(--ln)}
+.dlg-h h3{margin:0;font:700 17px var(--display)}
+.dlg-b{padding:4px 22px 18px}
+.dlg-f{display:flex;justify-content:flex-end;gap:8px;padding:14px 22px;border-top:1px solid var(--ln);background:#fbfcfb;border-radius:0 0 20px 20px}
+#msg{position:fixed;left:50%;bottom:24px;transform:translate(-50%,16px);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;background:var(--ink);color:#fff;padding:12px 18px 15px;border-radius:12px;font-size:13px;box-shadow:0 12px 30px rgba(20,32,30,.28);z-index:60;max-width:90vw;overflow:hidden}
+#msg::after{content:"";position:absolute;left:0;bottom:0;height:3px;width:100%;background:#5eead4;transform-origin:left}
+#msg.show{opacity:1;transform:translate(-50%,0)}
+#msg.show::after{animation:toastBar 3.8s linear both}
+#pbar{position:fixed;top:0;left:0;right:0;height:3px;z-index:100;pointer-events:none;opacity:0;transition:opacity .35s}
+#pbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#5eead4,#0f766e,#0284c7);box-shadow:0 0 10px rgba(15,118,110,.5);transition:width .35s ease}
+#pbar.run{opacity:1}#pbar.run i{width:80%;transition:width 9s cubic-bezier(.1,.5,.2,1)}
+#pbar.done{opacity:1}#pbar.done i{width:100%;transition:width .2s ease}
+#pbar.fade{opacity:0}
+.sk{height:12px;border-radius:6px;margin:10px 0;background:linear-gradient(90deg,#eef2f0 25%,#f8faf9 37%,#eef2f0 63%);background-size:400% 100%;animation:shimmer 1.4s ease infinite}
+.sk.big{height:28px;width:60%}
+.w30{width:30%}.w40{width:40%}.w60{width:60%}.w90{width:90%}
+
+/* ---------- Motion ---------- */
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes shimmer{0%{background-position:100% 0}100%{background-position:-100% 0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes growX{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes growY{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes ringIn{from{opacity:0;transform:rotate(-100deg) scale(.8)}to{opacity:1;transform:none}}
+@keyframes dlgIn{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes livePulse{0%{box-shadow:0 0 0 0 rgba(15,118,110,.5)}70%{box-shadow:0 0 0 7px rgba(15,118,110,0)}100%{box-shadow:0 0 0 0 rgba(15,118,110,0)}}
+@keyframes toastBar{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+.view.enter>*{animation:fadeUp .5s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--d,0) * 70ms)}
+.kpi{animation:fadeUp .5s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--d,0) * 60ms)}
+.empty{animation:fade .4s ease both}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+/* ---------- Responsive ---------- */
+.hero .ring circle[style*="var(--spent)"]{stroke:#5eead4!important}
+.hero .ring circle[style*="var(--held)"]{stroke:#fbbf24!important}
+.hero .ring circle[style*="var(--re)"]{stroke:#7dd3fc!important}
+.hero .ring circle[style*="#e2e8f0"]{stroke:rgba(255,255,255,.18)!important}
+.hero .legend i[style*="var(--spent)"]{background:#5eead4!important}
+.hero .legend i[style*="var(--held)"]{background:#fbbf24!important}
+.hero .legend i[style*="var(--re)"]{background:#7dd3fc!important}
+@media (max-width:1100px){.hero{grid-template-columns:1fr}.hero-l{flex-direction:row;align-items:center;justify-content:center;flex-wrap:wrap}.hero #donut{flex-direction:row}.ring{width:150px;height:150px}.legend{width:auto;min-width:220px}.steps{grid-template-columns:repeat(2,1fr)}.g-3{grid-template-columns:1fr 1fr}.g-3>.card:last-child{grid-column:1/-1}}
+@media (max-width:900px){
+  .top-in{height:auto;flex-wrap:wrap;padding:12px 16px;gap:12px}
+  .nav{order:3;width:100%}
+  .top-actions{margin-left:auto}
+  .wrap{padding:22px 14px 60px}
+  .g-2,.g-3{grid-template-columns:1fr}
+  .g-kpi{grid-template-columns:1fr 1fr}
+  .kpi:nth-child(3n){border-right:1px solid var(--ln2)}
+  .kpi:nth-child(2n){border-right:0}
+  .kpi:nth-last-child(-n+3){border-bottom:1px solid var(--ln2)}
+  .kpi:nth-last-child(-n+2){border-bottom:0}
+  .form-row{grid-template-columns:1fr}
+  .facts{grid-template-columns:1fr 1fr}
+  .tall{max-height:none}
+  h1{font-size:23px}
+}
+@media print{
+  @page{size:A4 portrait;margin:12mm}
+  *,*::before,*::after{animation:none!important;transition:none!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{background:#fff;color:#000}
+  .top,.wrap,#msg,#pbar,dialog{display:none!important}
+  body.printing>*:not(#printArea){display:none!important}
+  body.printing #printArea{display:block;font-size:11px;color:#000}
+  #printArea .ph-org{font-weight:700;font-size:14px}
+  #printArea .ph-dep{color:#444;font-size:11px}
+  #printArea h2{font-size:14px;margin:10px 0 2px}
+  #printArea .f{margin:0 0 8px;color:#444;font-size:11px}
+  #printArea table{width:100%;border-collapse:collapse;table-layout:fixed}
+  #printArea th,#printArea td{border:1px solid #888;padding:4px 7px;text-align:left;font-size:11px;vertical-align:top;white-space:normal}
+  #printArea th{background:#e9edf3;color:#000;font-weight:600}
+  #printArea .n{text-align:right}
+  #printArea .nw{white-space:nowrap}
+  #printArea thead{display:table-header-group}
+  #printArea tr{break-inside:avoid}
+  #printArea tfoot td{font-weight:600;background:#f3f5f8}
+  #printArea table.dense th,#printArea table.dense td{font-size:9.5px;padding:3px 4px}
+}
+#printArea{display:none}
+
+/* ===== Polish pass: depth, motion, micro-interactions ===== */
+:root{
+  --sh-card:0 1px 1px rgba(20,32,30,.04),0 2px 6px -2px rgba(20,32,30,.06),0 12px 28px -18px rgba(20,32,30,.22);
+  --sh-lift:0 2px 4px rgba(20,32,30,.05),0 18px 36px -18px rgba(15,118,110,.32);
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+.card{box-shadow:var(--sh-card);transition:box-shadow .35s var(--ease),transform .35s var(--ease),border-color .35s}
+.card:hover{box-shadow:var(--sh-lift);border-color:#d2ddd9}
+.card-h h2{transition:color .25s}
+
+/* Hero: slow shifting gradient, soft glow and ring shadow */
+.hero-l{position:relative;overflow:hidden;background-size:180% 180%;animation:heroShift 14s ease-in-out infinite}
+.hero-l::before{content:"";position:absolute;width:260px;height:260px;right:-90px;top:-100px;border-radius:50%;background:radial-gradient(circle,rgba(153,246,228,.28),transparent 65%);pointer-events:none;animation:floatGlow 9s ease-in-out infinite}
+.hero-l>*{position:relative}
+.hero .ring{filter:drop-shadow(0 12px 22px rgba(94,234,212,.28))}
+.hero .legend li{transition:transform .25s var(--ease)}
+.hero .legend li:hover{transform:translateX(3px)}
+@keyframes heroShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes floatGlow{0%,100%{transform:translate(0,0)}50%{transform:translate(-22px,18px)}}
+
+/* Key figures: lift and gentle emphasis on hover */
+.kpi{transition:background .3s var(--ease),transform .3s var(--ease)}
+.kpi:hover{background:#f7faf9;transform:translateY(-2px)}
+.kpi.acc:hover{background:#d8efea}
+.kpi .v{transition:color .3s}
+
+/* Evaluation steps */
+.step{transition:transform .3s var(--ease),box-shadow .3s var(--ease),background .3s}
+.step:hover{transform:translateY(-3px);box-shadow:0 14px 26px -16px rgba(20,32,30,.3)}
+.step.now{animation:nowGlow 2.6s ease-in-out infinite}
+@keyframes nowGlow{0%,100%{box-shadow:0 0 0 0 rgba(15,118,110,.22)}50%{box-shadow:0 0 0 7px rgba(15,118,110,0)}}
+
+/* Progress bars: sweeping highlight */
+.prog{box-shadow:inset 0 1px 2px rgba(20,32,30,.06)}
+.prog i{position:relative;overflow:hidden;border-radius:inherit}
+.prog i::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent);transform:translateX(-100%);animation:sweep 2.8s ease-in-out infinite}
+@keyframes sweep{0%{transform:translateX(-100%)}60%,100%{transform:translateX(100%)}}
+.mbar i{box-shadow:inset 0 -2px 0 rgba(255,255,255,.2)}
+.mcol:hover .mbar i{filter:brightness(1.08)}
+
+/* Navigation: sliding underline on the active tab */
+.nav a{position:relative;transition:background .25s,color .25s,transform .2s var(--ease)}
+.nav a:hover{transform:translateY(-1px)}
+.nav a.on{box-shadow:0 1px 2px rgba(15,118,110,.12)}
+.nav a.on::after{content:"";position:absolute;left:18%;right:18%;bottom:-13px;height:2px;border-radius:2px;background:var(--teal);animation:underline .35s var(--ease) both}
+@keyframes underline{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.top{transition:box-shadow .3s var(--ease)}
+.top.scrolled{box-shadow:0 10px 26px -18px rgba(20,32,30,.35)}
+.mark{box-shadow:0 6px 16px -6px rgba(15,118,110,.65);transition:transform .3s var(--ease)}
+.brand:hover .mark{transform:rotate(-6deg) scale(1.04)}
+
+/* Buttons */
+.btn{box-shadow:0 1px 2px rgba(15,118,110,.2)}
+.btn:hover{transform:translateY(-1px)}
+.btn.ghost{box-shadow:0 1px 2px rgba(20,32,30,.05)}
+.btn.ghost:hover{transform:translateY(-1px);box-shadow:0 6px 14px -10px rgba(20,32,30,.35)}
+.pill{box-shadow:0 0 0 0 rgba(217,119,6,.35);animation:pillPing 3.2s ease-in-out infinite}
+@keyframes pillPing{0%,100%{box-shadow:0 0 0 0 rgba(217,119,6,.28)}50%{box-shadow:0 0 0 6px rgba(217,119,6,0)}}
+
+/* Inputs */
+input:hover,select:hover,textarea:hover{border-color:#a9bcb6}
+input:focus,select:focus,textarea:focus{box-shadow:0 0 0 4px rgba(15,118,110,.14)}
+
+/* Tables */
+.tbl tr.click{transition:background .2s}
+.tbl tr.click:hover td{box-shadow:inset 3px 0 0 var(--teal)}
+.tbl td{transition:background .2s}
+#evt tr,#tbl tr,#req tr,#evlist tr{animation:rowIn .45s var(--ease) both}
+@keyframes rowIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.tbl th{box-shadow:inset 0 -1px 0 var(--ln)}
+
+/* Insights and badges */
+.ins li{transition:background .25s}
+.ins li:hover{background:#fafcfb}
+.ins li.w::before{animation:dotPulse 2.2s ease-in-out infinite}
+@keyframes dotPulse{0%,100%{box-shadow:0 0 0 0 rgba(217,119,6,.45)}50%{box-shadow:0 0 0 6px rgba(217,119,6,0)}}
+.badge{animation:badgeIn .4s var(--ease) both}
+@keyframes badgeIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:none}}
+
+/* Toast and dialog */
+#msg.show{animation:toastIn .5s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,28px) scale(.96)}to{opacity:1;transform:translate(-50%,0) scale(1)}}
+dialog{box-shadow:0 40px 90px -20px rgba(15,23,42,.45),0 0 0 1px rgba(255,255,255,.04)}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion:reduce){
+  .hero-l,.hero-l::before,.step.now,.pill,.ins li.w::before,.prog i::after,.nav a.on::after{animation:none!important}
+}
+@media print{.card{box-shadow:none!important}}
+</style>
+</head>
+<body>
+<div id="pbar" aria-hidden="true"><i></i></div>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand"><div class="mark">SF</div><div><b>Safe Forum Funds</b><small>HLL Lifecare · Peroorkada</small></div></div>
+    <nav class="nav" aria-label="Main">
+      <a href="#overview" data-v="overview" class="on">Overview</a>
+      <a href="#events" data-v="events">Events</a>
+      <a href="#evaluations" data-v="evaluations">Evaluations</a>
+      <a href="#requests" data-v="requests">Fund requests</a>
+    </nav>
+    <div class="top-actions">
+      <span class="pill" id="next"></span>
+      <button class="btn ghost" id="rb" onclick="refresh()">Refresh</button>
+      <button class="btn ghost" onclick="printNow()">Print</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="page-h">
+    <h1 id="pagetitle">Fund overview</h1>
+    <div class="meta" id="fy">Loading…</div>
+  </div>
+
+  <!-- Overview -->
+  <section class="view on" id="v-overview">
+    <div class="card hero">
+      <div class="hero-l">
+        <div class="eyebrow">Budget used</div>
+        <h2>Safe Forum allocation</h2>
+        <div id="donut"></div>
+      </div>
+      <div class="hero-r"><div class="grid g-kpi" id="kpi"></div></div>
+    </div>
+
+    <div class="card mt">
+      <div class="card-h"><div><h2>Evaluation cycle</h2><p>Quarterly holds and reallocation windows</p></div></div>
+      <div class="steps" id="tl"></div>
+    </div>
+
+    <div class="grid g-3 mt">
+      <div class="card"><div class="card-h"><div><h2>Monthly spend</h2><p>₹ by month, this financial year</p></div></div><div class="card-b" id="month"></div></div>
+      <div class="card"><div class="card-h"><div><h2>Utilization by forum</h2><p>Share of allocation spent</p></div></div><div class="card-b rk-wrap" id="rank"></div></div>
+      <div class="card"><div class="card-h"><div><h2>Insights</h2><p>Generated from the sheet</p></div></div><ul class="ins" id="ins"></ul></div>
+    </div>
+
+    <div class="card mt">
+      <div class="card-h"><div><h2>Safe Forums</h2><p>Select a forum to see its events</p></div></div>
+      <div class="scroll"><table class="tbl" id="tbl"></table></div>
+      <div class="lg"><span><i style="background:var(--spent)"></i>Utilized</span><span><i style="background:var(--held)"></i>Retained</span><span><i style="background:var(--free)"></i>Remaining</span><span><i style="background:var(--re)"></i>Re-allocated</span></div>
+    </div>
+
+    <div class="card mt">
+      <div class="card-h"><div><h2>Financial year summary</h2><p>Spend by Safe Forum. Select a year to view its events.</p></div><button class="btn ghost sm" onclick="printNow('fy')">Print summary</button></div>
+      <div class="scroll"><table class="tbl" id="fyt"></table></div>
+    </div>
+  </section>
+
+  <!-- Events -->
+  <section class="view" id="v-events">
+    <div class="card">
+      <div class="card-h">
+        <div><h2>Event log</h2><div class="sumline" id="evsum"></div></div>
+        <button class="btn" onclick="openAdd()">+ Add event</button>
+      </div>
+      <div class="toolbar">
+        <select id="evy" aria-label="Financial year" onchange="events()"></select>
+        <select id="evf" aria-label="Safe Forum" onchange="events()"></select>
+        <select id="evm" aria-label="Month" onchange="events()">
+          <option value="">All months</option>
+          <option value="0">April</option><option value="1">May</option><option value="2">June</option><option value="3">July</option>
+          <option value="4">August</option><option value="5">September</option><option value="6">October</option><option value="7">November</option>
+          <option value="8">December</option><option value="9">January</option><option value="10">February</option><option value="11">March</option>
+        </select>
+        <input id="evs" type="search" placeholder="Search events or connection" aria-label="Search events" oninput="events()">
+      </div>
+      <div class="scroll tall"><table class="tbl evt" id="evt"></table></div>
+    </div>
+  </section>
+
+  <!-- Evaluations -->
+  <section class="view" id="v-evaluations">
+    <div class="card">
+      <div class="card-h"><div><h2>Run a quarterly evaluation</h2><p>Applies fund holds for the quarter and creates the mail. Each quarter runs once.</p></div></div>
+      <div class="card-b evrun">
+        <div><label for="q">Quarter</label>
+          <select id="q">
+            <option value="1">Q1 – first intimation</option>
+            <option value="2">Q2 – retain 25% of unutilized</option>
+            <option value="3">Q3 – retain 50% of remaining</option>
+            <option value="4">Q4 – year-end report</option>
+          </select></div>
+        <div class="btnrow">
+          <button class="btn" onclick="evalQ()">Run &amp; mail</button>
+          <button class="btn ghost" onclick="resendQ()">Resend mail</button>
+        </div>
+      </div>
+    </div>
+    <div class="card mt">
+      <div class="card-h"><div><h2>All evaluations</h2><p>Select a quarter to see what was held</p></div></div>
+      <div class="scroll"><table class="tbl" id="evlist"></table></div>
+    </div>
+    <div class="card mt">
+      <div class="card-h"><div><h2>Evaluation details</h2><p id="evdt"></p></div></div>
+      <div class="card-b" id="evdet"></div>
+    </div>
+  </section>
+
+  <!-- Fund requests -->
+  <section class="view" id="v-requests">
+    <div class="card">
+      <div class="card-h"><div><h2>Fund requests</h2><p>Approve or reject pending requests</p></div></div>
+      <div class="scroll"><table class="tbl" id="req"></table></div>
+    </div>
+    <div class="grid g-2 mt">
+      <div class="card">
+        <div class="card-h"><div><h2>Log an In-active Fund request</h2><p>Limits follow the last evaluation run</p></div></div>
+        <div class="card-b">
+          <p class="hint" id="win" style="margin:0 0 4px;min-height:0"></p>
+          <label for="rf">Safe Forum</label>
+          <select id="rf" onchange="reqLimit()"></select>
+          <label for="ra">Amount (₹)</label>
+          <input id="ra" type="number" min="1" inputmode="numeric">
+          <div class="hint" id="rl"></div>
+          <label for="rp">Purpose</label>
+          <textarea id="rp" rows="3" placeholder="Safety, Welfare, Health or Environment activity"></textarea>
+          <div class="btnrow"><button class="btn" id="sb" onclick="sendReq()">Submit request</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<dialog id="addev" aria-labelledby="addev-t">
+  <div class="dlg-h"><h3 id="addev-t">Add event</h3><button class="icon" aria-label="Close" onclick="document.getElementById('addev').close()">✕</button></div>
+  <div class="dlg-b">
+    <div class="form-row">
+      <div><label for="ed">Date</label><input id="ed" type="date"></div>
+      <div><label for="ef">Safe Forum</label><select id="ef"></select></div>
+    </div>
+    <label for="ee">Event</label>
+    <textarea id="ee" rows="3"></textarea>
+    <div class="form-row">
+      <div><label for="ec">In connection with</label><input id="ec" placeholder="Optional"></div>
+      <div><label for="ex">Expense (₹)</label><input id="ex" type="number" min="0" inputmode="decimal" placeholder="0"></div>
+    </div>
+  </div>
+  <div class="dlg-f">
+    <button class="btn ghost" onclick="document.getElementById('addev').close()">Cancel</button>
+    <button class="btn" id="eb" onclick="addEvent()">Save event</button>
+  </div>
+</dialog>
+
+<div id="msg" role="status" aria-live="polite"></div>
+<div id="printArea"></div>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbxrpzQtc79qjG1VTHqG2_P5k7HDgafvH_8qBbGId3zAT6jpIbrNSgmOyGRe70blypZIfg/exec';
+const $ = id => document.getElementById(id);
+const inr = n => '₹' + Number(n || 0).toLocaleString('en-IN');
+const kv = v => { const m = String(v).match(/^₹([\d,]+)$/); return m ? ` data-n="${m[1].replace(/,/g,'')}"` : '' };
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fd = d => new Date(d).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
+const fyl = y => 'FY ' + y + '-' + String(+y + 1).slice(2);
+const sum = (arr, k) => arr.reduce((a, x) => a + (+x[k] || 0), 0);
+const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
+const MON = ['April','May','June','July','August','September','October','November','December','January','February','March'];
+const evCols = [['date','Date'],['event','Event'],['connection','In connection with'],['forum','Safe Forum'],['expense','Expense']];
+const TITLES = {overview:'Fund overview', events:'Event log', evaluations:'Quarterly evaluations', requests:'Fund requests'};
+let S = null, evSort = {k:'date', d:-1}, printKind = '';
+
+function toast(t){const m=$('msg');m.textContent=t;m.classList.remove('show');void m.offsetWidth;m.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>m.classList.remove('show'),3800)}
+async function call(b){
+  const btn = document.activeElement && document.activeElement.tagName === 'BUTTON' ? document.activeElement : null;
+  if (btn) btn.classList.add('loading');
+  progStart();
+  try { const r = await fetch(API, {method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify(b)}); return await r.json() }
+  catch (e) { return {ok:false, error:'Cannot reach the server. Check the Web App URL and deployment.'} }
+  finally { if (btn) btn.classList.remove('loading'); progEnd() }
+}
+const quarter = d => {const m=d.getMonth();return m>=3&&m<=5?1:m<=8&&m>=6?2:m>=9?3:4};
+function nextEval(){const now=new Date(),y=now.getFullYear(),c=[];[y,y+1].forEach(yy=>[[0,3],[3,4],[6,1],[9,2]].forEach(([m,q])=>c.push({d:new Date(yy,m,1),q})));return c.filter(x=>x.d>now).sort((a,b)=>a.d-b.d)[0]}
+
+/* Loading feedback */
+let pending = 0, pT = null;
+function progStart(){ pending++; const p = $('pbar'); clearTimeout(pT); p.classList.remove('done','fade'); void p.offsetWidth; p.classList.add('run') }
+function progEnd(){
+  pending = Math.max(0, pending - 1); if (pending) return;
+  const p = $('pbar'); p.classList.remove('run'); p.classList.add('done');
+  pT = setTimeout(() => { p.classList.add('fade'); setTimeout(() => p.classList.remove('done','fade'), 350) }, 260);
+}
+function skeleton(){
+  $('kpi').innerHTML = Array.from({length:6}, () => '<div class="card kpi"><div class="sk w40"></div><div class="sk big"></div><div class="sk w60"></div></div>').join('');
+  $('tbl').innerHTML = '<tr><td><div class="sk w60"></div></td></tr>' + Array.from({length:5}, () => '<tr><td><div class="sk w90"></div></td></tr>').join('');
+  $('ins').innerHTML = Array.from({length:4}, () => '<li><span class="sk w90" style="flex:1"></span></li>').join('');
+}
+function countUp(root){
+  root.querySelectorAll('[data-n]').forEach(el => {
+    const to = +el.dataset.n, t0 = performance.now(), d = 900;
+    const step = t => { const p = Math.min(1, (t - t0) / d), e = 1 - Math.pow(1 - p, 3); el.textContent = inr(Math.round(to * e)); if (p < 1) requestAnimationFrame(step) };
+    requestAnimationFrame(step);
+  });
+}
+
+/* Overview */
+function timeline(){
+  const cur = quarter(new Date()) - 1;
+  $('tl').innerHTML = [['Q1','Apr – Jun','First intimation'],['Q2','Jul – Sep','Retain 25% of unutilized'],['Q3','Oct – Dec','Retain 50% of remaining'],['Q4','Jan – Mar','Year-end report']]
+    .map((x,i)=>`<div class="step${i<cur?' done':i===cur?' now':''}"><b>${x[0]} · ${x[1]}</b><span>${x[2]}</span></div>`).join('');
+}
+function bar(x){
+  const base = x.allocation + x.reallocated || 1, p = v => Math.max(0, v / base * 100).toFixed(2) + '%', free = Math.max(0, x.remaining - x.reallocated);
+  return `<div class="prog" title="Utilized ${inr(x.spent)} · Retained ${inr(x.held)} · Remaining ${inr(x.remaining)}"><i style="width:${p(x.spent)};background:var(--spent)"></i><i style="width:${p(x.held)};background:var(--held)"></i><i style="width:${p(free)};background:var(--free)"></i><i style="width:${p(x.reallocated)};background:var(--re)"></i></div>`;
+}
+function donut(f){
+  const alloc = sum(f,'allocation'), sp = sum(f,'spent'), h = sum(f,'held'), re = sum(f,'reallocated'), tot = alloc + re || 1, free = Math.max(0, alloc - sp - h);
+  const parts = [['Utilized',sp,'var(--spent)'],['Retained',h,'var(--held)'],['Remaining',free,'#cbd5e1'],['Re-allocated',re,'var(--re)']], R = 56, C = 2 * Math.PI * R;
+  let off = 0;
+  const seg = parts.filter(p => p[1] > 0).map(p => {
+    const l = p[1] / tot * C, s = `<circle r="${R}" cx="80" cy="80" fill="none" style="stroke:${p[2]}" stroke-width="20" stroke-dasharray="${l} ${C - l}" stroke-dashoffset="${-off}" transform="rotate(-90 80 80)"/>`;
+    off += l; return s;
+  }).join('');
+  $('donut').innerHTML = `<svg viewBox="0 0 160 160" class="ring" role="img" aria-label="Budget composition"><circle r="${R}" cx="80" cy="80" fill="none" style="stroke:#e2e8f0" stroke-width="20"/>${seg}<text x="80" y="78" text-anchor="middle" class="rv">${pct(sp,alloc)}%</text><text x="80" y="96" text-anchor="middle" class="rl">utilized</text></svg><ul class="legend">${parts.map(p=>`<li><i style="background:${p[2]}"></i><span>${p[0]}</span><b>${inr(p[1])}</b></li>`).join('')}</ul>`;
+}
+function monthly(ev){
+  const m = Array(12).fill(0);
+  ev.forEach(e => { m[(new Date(e.date).getMonth() + 9) % 12] += e.expense });
+  const mx = Math.max(...m);
+  if (!mx) { $('month').innerHTML = '<div class="empty">No expenses logged this year yet.</div>'; return }
+  $('month').innerHTML = `<div class="mcols">` + m.map((v,i) => {
+    const h = Math.max(v / mx * 100, v ? 4 : 0);
+    return `<div class="mcol" style="--d:${i}" title="${MON[i]}: ${inr(v)}"><div class="mval">${v ? (v >= 1000 ? Math.round(v/1000) + 'k' : v) : ''}</div><div class="mbar"><i style="height:${h}%;${v ? '' : 'background:transparent'}"></i></div><div class="mlab">${MON[i].slice(0,3)}</div></div>`;
+  }).join('') + `</div>`;
+}
+function rank(f){
+  $('rank').innerHTML = [...f].sort((a,b) => b.spent - a.spent).map(x => {
+    const p = pct(x.spent, x.allocation);
+    return `<div class="rk"><span>${esc(x.name)}</span><div class="prog thin"><i style="width:${Math.min(p,100)}%;background:var(--spent)"></i></div><span class="rp">${p}%</span></div>`;
+  }).join('');
+}
+function insights(s){
+  const f = s.forums, L = [], sp = sum(f,'spent'), alloc = sum(f,'allocation'), ne = nextEval(), days = Math.ceil((ne.d - new Date()) / 864e5);
+  if (s.warnings && s.warnings.length) L.push(['b', `<b>${s.warnings.length}</b> row(s) in the sheet need attention:<br>` + s.warnings.slice(0,5).map(esc).join('<br>') + (s.warnings.length > 5 ? '<br>…' : '')]);
+  if (!s.events.length && f.some(x => x.held > 0)) L.push(['b', 'Funds are retained, but no events are logged this year. Check the Events tab and the Held column before the next evaluation.']);
+  L.push(['', `<b>${inr(sp)}</b> of ${inr(alloc)} utilized (${pct(sp,alloc)}%) across <b>${s.events.length}</b> events this year.`]);
+  const top = [...f].sort((a,b) => b.spent - a.spent)[0];
+  if (top && top.spent > 0) L.push(['g1', `Highest utilization: <b>${esc(top.name)}</b>, ${inr(top.spent)} (${pct(top.spent, top.allocation)}%).`]);
+  const low = f.filter(x => x.spent > 0 && x.remaining < x.allocation * .1);
+  if (low.length) L.push(['w', `Nearly exhausted: <b>${low.map(x => esc(x.name)).join(', ')}</b> (under 10% left).`]);
+  const pc = {2:.25, 3:.5}[ne.q], risk = f.filter(x => x.spent === 0);
+  if (pc && risk.length) {
+    const amt = risk.reduce((a,x) => a + pc * (x.allocation - x.held - x.spent), 0);
+    L.push(['w', `<b>${inr(amt)}</b> will be retained from <b>${risk.length}</b> forum(s) at the Q${ne.q} evaluation on ${fd(ne.d)} (in ${days} days) unless they utilize budget before then.`]);
+  } else L.push(['', `Next: Q${ne.q} evaluation on ${fd(ne.d)} (in ${days} days).`]);
+  const el = f.filter(x => x.canRequest > 0).map(x => x.name);
+  L.push(['', s.tier ? `In-active Fund available: <b>${inr(s.pool)}</b>. Up to <b>${inr(s.tierCap)}</b> per eligible forum in this window. Eligible: ${el.length ? esc(el.join(', ')) : 'none'}.` : `In-active Fund pool: <b>${inr(s.pool)}</b>. Requests open after the Q2 evaluation.`]);
+  const pend = s.requests.filter(r => r.status === 'Pending').length;
+  if (pend) L.push(['w', `<b>${pend}</b> fund request(s) waiting for a decision.`]);
+  $('ins').innerHTML = L.map(x => `<li class="${x[0]}"><span>${x[1]}</span></li>`).join('');
+}
+function fySummary(){
+  const A = S.allEvents, N = S.names, Y = [...new Set(A.map(x => x.fy).concat(S.fy))].sort((a,b) => b - a);
+  const tot = (y,n) => sum(A.filter(x => (!y || x.fy === y) && (!n || x.forum.toUpperCase() === n.toUpperCase())), 'expense');
+  $('fyt').innerHTML = `<tr><th>Financial year<th class="n">Events${N.map(n=>`<th class="n">${esc(n)}`).join('')}<th class="n">Total</tr>` +
+    Y.map(y => `<tr class="click" onclick="openFY(${y})"><td><b>${fyl(y)}</b><td class="n">${A.filter(x=>x.fy===y).length}${N.map(n=>{const v=tot(y,n);return `<td class="n">${v?inr(v):'–'}`}).join('')}<td class="n"><b>${inr(tot(y))}</b></tr>`).join('');
+}
+
+/* Load */
+async function load(){
+  timeline();
+  if (!S) skeleton();
+  const s = await call({action:'state'});
+  if (!s.ok) { $('tbl').innerHTML = `<tr><td class="empty">${esc(s.error)}</td></tr>`; toast(s.error); return false }
+  S = s;
+  const f = s.forums, alloc = sum(f,'allocation'), sp = sum(f,'spent'), h = sum(f,'held'), re = sum(f,'reallocated'), ne = nextEval(), active = f.filter(x => x.status === 'Active').length;
+  const names = []; [...f.map(x=>x.name), ...s.allEvents.map(x=>x.forum)].forEach(n => { if (n && !names.some(m => m.toUpperCase() === n.toUpperCase())) names.push(n) });
+  S.names = names;
+
+  $('fy').innerHTML = '<span class="live"></span>' + `${fyl(s.fy)} · Updated ${new Date(s.updated).toLocaleString('en-IN', {dateStyle:'medium', timeStyle:'short'})}`;
+  $('next').textContent = `Next evaluation: Q${ne.q} · ${fd(ne.d)}`;
+  $('kpi').innerHTML = [
+    ['Total allocation', inr(alloc), `${f.length} Safe Forums`],
+    ['Utilized', inr(sp), `${pct(sp,alloc)}% of allocation`],
+    ['Remaining with forums', inr(alloc - h - sp + re), 'Available to spend'],
+    ['Retained as In-active Fund', inr(h), 'Held by Safety Department'],
+    ['Available to reallocate', inr(s.pool), s.tier ? `Window open · up to ${inr(s.tierCap)} each` : 'Window closed'],
+    ['Forums utilizing budget', `${active} of ${f.length}`, 'With at least one event']
+  ].map(([l,v,sub],i) => `<div class="card kpi${i===4?' acc':''}"><div class="l">${l}</div><div class="v"${kv(v)}>${v}</div><div class="s">${sub}</div></div>`).join('');
+
+  donut(f); monthly(s.events); rank(f); insights(s);
+  countUp($('kpi'));
+  $('ins').querySelectorAll('li').forEach((l, k) => l.style.setProperty('--d', k));
+
+  $('tbl').innerHTML = `<tr><th>Safe Forum<th class="n">Events<th class="n">Utilized<th class="n">Retained<th class="n">Re-allocated<th class="n">Remaining<th>Budget use<th>Status<th>Fund request</tr>` +
+    f.map(x => `<tr class="click" data-f="${esc(x.name)}" onclick="openEvents(this.dataset.f)"><td><b>${esc(x.name)}</b><td class="n">${x.events}<td class="n">${inr(x.spent)}<td class="n">${inr(x.held)}<td class="n">${inr(x.reallocated)}<td class="n"><b>${inr(x.remaining)}</b><td>${bar(x)}<td><span class="badge ${x.status}">${x.status}</span><td>${x.eligible ? (x.canRequest > 0 ? `<span class="badge Eligible">Up to ${inr(x.canRequest)}</span>` : '<span class="badge Limit">Limit reached</span>') : '<span class="badge Inactive">Not eligible</span>'}`).join('');
+
+  const years = [...new Set(s.allEvents.map(x => x.fy).concat(s.fy))].sort((a,b) => b - a);
+  const ky = $('evy').value, kf = $('evf').value, first = !$('evy').dataset.init; $('evy').dataset.init = 1;
+  $('evy').innerHTML = '<option value="">All years</option>' + years.map(y => `<option value="${y}">${fyl(y)}</option>`).join('');
+  $('evy').value = first ? String(s.fy) : (ky === '' || years.includes(+ky) ? ky : String(s.fy));
+  $('evf').innerHTML = '<option value="">All Safe Forums</option>' + names.map(n => `<option>${esc(n)}</option>`).join('');
+  $('evf').value = kf;
+  $('ef').innerHTML = f.map(x => `<option>${esc(x.name)}</option>`).join('');
+
+  const keepR = $('rf').value, el = f.filter(x => x.canRequest > 0);
+  $('rf').innerHTML = el.length ? el.map(x => `<option value="${esc(x.name)}" data-max="${x.canRequest}">${esc(x.name)} — up to ${inr(x.canRequest)}</option>`).join('') : '<option value="">No forum can request now</option>';
+  if (el.some(x => x.name === keepR)) $('rf').value = keepR;
+  reqLimit();
+  $('win').textContent = s.tier
+    ? `After the Q${s.tier+1} evaluation, each eligible Safe Forum can request up to ${inr(s.tierCap)} in total. Pool available: ${inr(s.pool)}. Forums with retained funds are not eligible.`
+    : 'Requests open after the Q2 evaluation is run. Then each eligible forum can request up to ₹1,000, and up to ₹2,000 after the Q3 evaluation.';
+
+  fySummary(); events(); requests(); renderEvaluations();
+  return true;
+}
+
+/* Events */
+function evData(){
+  const fy = $('evy').value, fo = $('evf').value, mo = $('evm').value, q = $('evs').value.trim().toLowerCase(), {k, d} = evSort;
+  const e = S.allEvents.filter(x => (!fy || x.fy === +fy) && (!fo || x.forum.toUpperCase() === fo.toUpperCase()) && (mo === '' || (new Date(x.date).getMonth() + 9) % 12 === +mo) && (!q || (x.event + ' ' + (x.connection || '')).toLowerCase().includes(q)))
+    .sort((a,b) => d * (k === 'date' ? new Date(a.date) - new Date(b.date) : k === 'expense' ? a.expense - b.expense : String(a[k] || '').localeCompare(String(b[k] || ''), undefined, {sensitivity:'base'})));
+  return {e, fy, fo, mo, q, tot: sum(e,'expense')};
+}
+function events(){
+  if (!S) return;
+  const {e, fy, fo, tot} = evData(), f = fy && +fy === S.fy ? S.forums.find(x => x.name.toUpperCase() === fo.toUpperCase()) : null;
+  $('evsum').innerHTML = `<span><b>${e.length}</b> event${e.length === 1 ? '' : 's'}</span><span><b>${inr(tot)}</b> spent</span><span>${fy ? fyl(fy) : 'All years'}</span>` + (f ? `<span>${esc(f.name)} remaining <b>${inr(f.remaining)}</b></span>` : '');
+  const arrow = k => evSort.k === k ? (evSort.d > 0 ? ' ▲' : ' ▼') : '';
+  const C = [['date','Date','120px'],['event','Event',''],['forum','Safe Forum','130px'],['expense','Expense','120px']];
+  $('evt').innerHTML = `<tr>${C.map(([k,l,w]) => `<th class="srt${k==='expense'?' n':''}" style="${w?'width:'+w:''}" onclick="sortBy('${k}')">${l}${arrow(k)}</th>`).join('')}</tr>` +
+    (e.length ? e.map(x => `<tr><td class="nw">${fd(x.date)}</td><td class="wrap">${esc(x.event)}${x.connection ? `<div class="sub2">${esc(x.connection)}</div>` : ''}</td><td><span class="fbadge">${esc(x.forum)}</span></td><td class="n">${inr(x.expense)}</td></tr>`).join('') : '<tr><td colspan="4" class="empty">No events match these filters.</td></tr>');
+}
+function sortBy(k){ evSort = evSort.k === k ? {k, d: -evSort.d} : {k, d: (k === 'date' || k === 'expense') ? -1 : 1}; events() }
+function openEvents(name){ $('evy').value = String(S.fy); $('evf').value = name; $('evm').value = ''; $('evs').value = ''; events(); showView('events') }
+function openFY(y){ $('evy').value = String(y); $('evf').value = ''; $('evm').value = ''; $('evs').value = ''; events(); showView('events') }
+function openAdd(){ if (!$('ed').value) $('ed').value = new Date().toLocaleDateString('en-CA'); $('addev').showModal() }
+async function addEvent(){
+  const b = $('eb'); b.disabled = true;
+  const r = await call({action:'addEvent', date:$('ed').value, forum:$('ef').value, event:$('ee').value, connection:$('ec').value, expense:$('ex').value});
+  b.disabled = false;
+  toast(r.ok ? ('Event saved' + (r.warning ? '. Note: ' + r.warning : '')) : r.error);
+  if (r.ok) { $('ee').value = ''; $('ec').value = ''; $('ex').value = ''; $('addev').close(); load() }
+}
+
+/* Evaluations */
+const EVNAME = {1:'First intimation', 2:'Retain 25% of unutilized', 3:'Retain 50% of remaining', 4:'Year-end report'};
+let evSel = '';
+const evLabel = e => `Q${e.quarter} · ${fyl(e.fy)}`;
+function mailBadge(m){
+  m = String(m || '');
+  if (/^FAILED/.test(m)) return '<span class="badge Inactive">Failed</span>';
+  if (/^sent/.test(m)) return '<span class="badge Sent">Sent</span>';
+  if (/DRAFT/.test(m)) return '<span class="badge Pending">Draft, not sent</span>';
+  return '<span class="sub2">–</span>';
+}
+function renderEvaluations(){
+  const E = S.evaluations || [];
+  $('evlist').innerHTML = E.length
+    ? '<tr><th>Evaluation<th>Action<th>Run on<th class="n">Retained now<th class="n">Pool after<th>Mail</tr>' + E.map(e => `<tr class="click${e.key === evSel ? ' pick' : ''}" data-k="${esc(e.key)}" onclick="selectEval(this.dataset.k)"><td><b>${esc(evLabel(e))}</b><td>${esc(EVNAME[e.quarter] || '')}<td class="nw">${e.runAt ? fd(e.runAt) : '–'}<td class="n">${inr(e.retained)}<td class="n">${inr(e.pool)}<td>${mailBadge(e.mail)}</tr>`).join('')
+    : '<tr><td class="empty">No evaluations have been run yet.</td></tr>';
+  if (!E.some(e => e.key === evSel)) evSel = E[0] ? E[0].key : '';
+  renderEvalDetail();
+}
+function selectEval(k){ evSel = k; renderEvaluations() }
+function renderEvalDetail(){
+  const e = (S.evaluations || []).find(x => x.key === evSel), box = $('evdet');
+  if (!e) { box.innerHTML = '<div class="empty">No evaluation selected.</div>'; $('evdt').textContent = ''; return }
+  $('evdt').textContent = `${evLabel(e)} · ${EVNAME[e.quarter] || ''}`;
+  const facts = [['Run on', e.runAt ? new Date(e.runAt).toLocaleString('en-IN', {dateStyle:'medium', timeStyle:'short'}) : '–'],
+                 ['Retained in this run', inr(e.retained)], ['In-active pool after', inr(e.pool)], ['Mail', mailBadge(e.mail)]];
+  const F = e.forums;
+  box.innerHTML = `<div class="facts">${facts.map(([l,v]) => `<div><span>${l}</span><b>${v}</b></div>`).join('')}</div>` +
+    (F ? `<div class="scroll"><table class="tbl"><tr><th>Safe Forum<th>Status<th class="n">Utilized<th class="n">Held before<th class="n">Retained now<th class="n">Held after<th class="n">Remaining</tr>` +
+      F.map(x => `<tr><td><b>${esc(x.name)}</b><td><span class="badge ${esc(x.status)}">${esc(x.status)}</span><td class="n">${inr(x.spent)}<td class="n">${inr(x.heldBefore)}<td class="n">${x.added ? inr(x.added) : '–'}<td class="n">${inr(x.heldAfter)}<td class="n">${inr(x.remaining)}</tr>`).join('') + '</table></div>'
+      : '<div class="empty">Forum-level figures were not recorded for this older run. Runs from now on store them.</div>');
+}
+
+/* Fund requests */
+function requests(){
+  const r = S.requests;
+  $('req').innerHTML = r.length
+    ? `<tr><th>Date<th>Safe Forum<th>Purpose<th class="n">Amount<th>Status<th></tr>` + r.map(x => `<tr><td class="nw">${fd(x.ts)}</td><td><b>${esc(x.forum)}</b></td><td class="wrap">${esc(x.purpose)}</td><td class="n">${inr(x.amount)}${x.status === 'Approved' ? `<div class="sub2">Approved ${inr(x.approved)}</div>` : ''}</td><td><span class="badge ${esc(x.status)}">${esc(x.status)}</span></td><td class="nw">${x.status === 'Pending' ? `<button class="btn ok sm" onclick="decide(${+x.row},'Approve')">Approve</button> <button class="btn bad sm" onclick="decide(${+x.row},'Reject')">Reject</button>` : ''}</td></tr>`).join('')
+    : '<tr><td colspan="6" class="empty">No fund requests yet.</td></tr>';
+}
+function reqLimit(){
+  const o = $('rf').selectedOptions[0], m = o && o.dataset.max;
+  $('ra').max = m || '';
+  $('rl').textContent = m ? `Maximum ${inr(m)} for this forum` : '';
+  if (m && +$('ra').value > +m) $('ra').value = m;
+}
+async function sendReq(){
+  const b = $('sb'); b.disabled = true;
+  const r = await call({action:'request', forum:$('rf').value, amount:$('ra').value, purpose:$('rp').value.trim()});
+  b.disabled = false;
+  toast(r.ok ? 'Request submitted' : r.error);
+  if (r.ok) { $('ra').value = ''; $('rp').value = ''; load() }
+}
+async function decide(row, d){
+  const r = await call({action:'decide', row, decision:d});
+  toast(r.ok ? (d === 'Approve' ? `Approved ${inr(r.amount)}` : 'Request rejected') : r.error);
+  load();
+}
+async function evalQ(){
+  if (!confirm('Run the evaluation for the selected quarter? This applies fund holds and creates the mail.')) return;
+  const r = await call({action:'evaluate', q:$('q').value});
+  toast(r.ok ? `Evaluation ${r.key} done. Mail: ${r.mail}` : r.error);
+  load();
+}
+async function resendQ(){
+  const r = await call({action:'resend', q:$('q').value});
+  toast(r.ok ? `Mail: ${r.mail}` : r.error);
+}
+async function refresh(){
+  const b = $('rb'); b.disabled = true; b.classList.add('loading');
+  const ok = await load();
+  b.disabled = false; b.classList.remove('loading');
+  if (ok) toast('Data refreshed');
+}
+
+/* Navigation */
+function showView(v){
+  if (!TITLES[v]) v = 'overview';
+  document.querySelectorAll('.view').forEach(x => x.classList.toggle('on', x.id === 'v-' + v));
+  document.querySelectorAll('.nav a').forEach(a => a.classList.toggle('on', a.dataset.v === v));
+  $('pagetitle').textContent = TITLES[v];
+  const nv = $('v-' + v); nv.classList.remove('enter'); void nv.offsetWidth; nv.classList.add('enter');
+  Array.from(nv.children).forEach((c, k) => c.style.setProperty('--d', k));
+  if (location.hash !== '#' + v) history.replaceState(null, '', '#' + v);
+  window.scrollTo(0, 0);
+}
+window.addEventListener('hashchange', () => showView(location.hash.slice(1)));
+document.querySelectorAll('.nav a').forEach(a => a.addEventListener('click', e => { e.preventDefault(); showView(a.dataset.v) }));
+
+/* Print: prints only the selected report */
+function pTable(head, rows, foot, cls){
+  const c = i => (head[i][1] ? 'n' : '') + (head[i][3] ? ' nw' : '');
+  return `<table class="${cls||''}"><colgroup>${head.map(x => `<col${x[2] ? ` style="width:${x[2]}"` : ''}>`).join('')}</colgroup><thead><tr>${head.map((x,i) => `<th class="${c(i)}">${x[0]}`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${r.map((v,i) => `<td class="${c(i)}">${v}`).join('')}</tr>`).join('')}</tbody>${foot ? `<tfoot><tr>${foot.map((v,i) => `<td class="${c(i)}">${v}`).join('')}</tr></tfoot>` : ''}</table>`;
+}
+function pHead(title, lines){
+  const d = new Date().toLocaleDateString('en-IN', {day:'numeric', month:'long', year:'numeric'});
+  return `<div class="ph-org">HLL Lifecare Ltd · Peroorkada Factory</div><div class="ph-dep">Safety &amp; Environment Department</div><h2>${esc(title)}</h2><p class="f">${[...lines, 'Printed ' + d].map(esc).join(' · ')}</p>`;
+}
+function buildReport(v){
+  if (v === 'events') {
+    const {e, fy, fo, mo, q, tot} = evData(), m = $('evm'), col = evCols.find(c => c[0] === evSort.k)[1];
+    return pHead('Safe Forum events', [fy ? fyl(fy) : 'All years', fo || 'All Safe Forums', mo !== '' ? m.options[m.selectedIndex].text : 'All months', q ? `Search: "${q}"` : 'No search', `Sorted by ${col} (${evSort.d > 0 ? 'ascending' : 'descending'})`]) +
+      pTable([['Sl.',0,'6%'],['Date',0,'15%',1],['Event',0,''],['In connection with',0,'17%'],['Safe Forum',0,'14%'],['Expense (₹)',1,'12%',1]],
+        e.map((x,i) => [i+1, fd(x.date), esc(x.event), esc(x.connection), esc(x.forum), inr(x.expense)]),
+        ['', '', `${e.length} event(s)`, '', 'Total', inr(tot)]);
+  }
+  if (v === 'fy') {
+    const A = S.allEvents, N = S.names, Y = [...new Set(A.map(x => x.fy).concat(S.fy))].sort((a,b) => b - a);
+    const t = (y,n) => sum(A.filter(x => (!y || x.fy === y) && (!n || x.forum.toUpperCase() === n.toUpperCase())), 'expense');
+    return pHead('Financial year summary', ['Spend by Safe Forum (₹)']) +
+      pTable([['Financial year',0,''],['Events',1,'',1], ...N.map(n => [esc(n),1,'',1]), ['Total',1,'',1]],
+        Y.map(y => [fyl(y), A.filter(x => x.fy === y).length, ...N.map(n => t(y,n) ? inr(t(y,n)) : '–'), inr(t(y))]),
+        ['All years', A.length, ...N.map(n => inr(t(0,n))), inr(t(0))], 'dense');
+  }
+  if (v === 'requests') {
+    return pHead('In-active Fund requests', [fyl(S.fy)]) +
+      pTable([['Date',0,'15%',1],['Safe Forum',0,'14%'],['Purpose',0,''],['Requested (₹)',1,'14%',1],['Status',0,'11%'],['Approved (₹)',1,'14%',1]],
+        S.requests.map(x => [fd(x.ts), esc(x.forum), esc(x.purpose), inr(x.amount), esc(x.status), x.status === 'Approved' ? inr(x.approved) : '–']));
+  }
+  if (v === 'evaluations') {
+    const e = (S.evaluations || []).find(x => x.key === evSel);
+    if (e && e.forums) return pHead('Quarterly evaluation: ' + evLabel(e) + ' (' + (EVNAME[e.quarter] || '') + ')', [e.runAt ? 'Run on ' + fd(e.runAt) : '', 'Retained ' + inr(e.retained), 'In-active pool after ' + inr(e.pool)]) +
+      pTable([['Safe Forum',0,''],['Status',0,'',1],['Utilized (₹)',1,'',1],['Held before (₹)',1,'',1],['Retained now (₹)',1,'',1],['Held after (₹)',1,'',1],['Remaining (₹)',1,'',1]],
+        e.forums.map(x => [esc(x.name), x.status, inr(x.spent), inr(x.heldBefore), inr(x.added), inr(x.heldAfter), inr(x.remaining)]), null, 'dense');
+  }
+  const F = S.forums;
+  return pHead('Fund utilization by Safe Forum', [fyl(S.fy), `In-active Fund available ${inr(S.pool)}`]) +
+    pTable([['Safe Forum',0,''],['Events',1,'',1],['Utilized (₹)',1,'',1],['Retained (₹)',1,'',1],['Re-allocated (₹)',1,'',1],['Remaining (₹)',1,'',1],['Status',0,'',1]],
+      F.map(x => [esc(x.name), x.events, inr(x.spent), inr(x.held), inr(x.reallocated), inr(x.remaining), x.status]),
+      ['Total', sum(F,'events'), inr(sum(F,'spent')), inr(sum(F,'held')), inr(sum(F,'reallocated')), inr(sum(F,'remaining')), ''], 'dense');
+}
+function printNow(kind){ printKind = kind || ''; window.print() }
+window.addEventListener('beforeprint', () => {
+  if (!S) return;
+  const cur = (document.querySelector('.view.on') || {id:'v-overview'}).id.slice(2);
+  $('printArea').innerHTML = buildReport(printKind || cur);
+  document.body.classList.add('printing');
+});
+window.addEventListener('afterprint', () => { document.body.classList.remove('printing'); printKind = ''; $('printArea').innerHTML = '' });
+
+showView(location.hash.slice(1));
+load();
+</script>
+<script>
+window.addEventListener('scroll',()=>document.querySelector('.top').classList.toggle('scrolled',window.scrollY>8),{passive:true});
+</script>
+</body>
+</html>
